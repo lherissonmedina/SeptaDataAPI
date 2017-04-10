@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+    
+<body>
+    
+    <header>
+        <div id="container">
+            
+            <div id="coord">
+                <input style="width:100px" id="latitude" placeholder="Latitude" type="number" value="39.955309">
+                <input style="width:100px" id="longitude" placeholder="Longitude" type="number" value="-75.189732">
+                <input style="width:60px" id="radius" placeholder="Radius" type="number" value="1.0">
+                <select onchange="changedOption(this)">
+                    <option value="39.955309,-75.189732">Hagarty</option>
+                    <option value="39.953263,-75.159222">Reading Terminal</option>
+                    <option value="39.917027,-75.141980">Ikea</option>
+                    <option value="39.967354,-75.255481">Haddington Woods</option>
+                </select>
+            </div>
+            
+            <div id="buttons">
+                <button type="button" onclick="buttonPressed('all')">
+                    All
+                </button> 
+
+                <button type="button" onclick="buttonPressed('near')">
+                    Near Me
+                </button>
+
+                <button type="button" onclick="buttonPressed('septa')">
+                    Septa API
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <p id="status"></p>
+    
+    <div id="locations">
+        <!--
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Distance (m)</th>
+            </tr>
+            <tr>
+                <td>Home</td>
+                <td>200 Atlantic Ave. Hamilton NJ</td>
+                <td>40.4353</td>
+                <td>-70.342432</td>
+                <td>23</td>
+            </tr>
+            <tr>
+                <td>Home</td>
+                <td>200 Atlantic Ave. Hamilton NJ</td>
+                <td>40.4353</td>
+                <td>-70.342432</td>
+                <td>23</td>
+            </tr>
+            <tr>
+                <td>Home</td>
+                <td>200 Atlantic Ave. Hamilton NJ</td>
+                <td>40.4353</td>
+                <td>-70.342432</td>
+                <td>23</td>
+            </tr>
+            <tr>
+                <td>Home</td>
+                <td>200 Atlantic Ave. Hamilton NJ</td>
+                <td>40.4353</td>
+                <td>-70.342432</td>
+                <td>23</td>
+            </tr>
+        </table>
+        -->
+    </div>
+
+<script>
+    function changedOption(option) {
+        val = option.value.split(",");
+        lat = val[0];
+        lon = val[1];
+        $("#latitude").val(lat);
+        $("#longitude").val(lon);
+    }
+    
+    function getStations(type) {
+        $("#status").html("Getting Stations...");
+        lat = $("#latitude").val();
+        lon = $("#longitude").val();
+        radius = $("#radius").val();
+        
+        file = "septa_stations.php";
+        if(type == 'septa') {
+            file = "nearby_locations.php";
+        }
+        
+        $.post(file, {type: type, lat: lat, lon: lon, radius: radius}, function(result, status){
+            $("#status").html(type+status + result);
+        
+            resultingTable = "";
+            resultingTable += "<table>\n";
+            resultingTable += "<tr>\n";
+            resultingTable += "<th>Name</th>\n";
+            resultingTable += "<th>Address</th>\n";
+            resultingTable += "<th>Latitude</th>\n";
+            resultingTable += "<th>Longitude</th>\n";
+            resultingTable += "<th>Distance (m)</th>\n";
+            resultingTable += "</tr>\n";
+        
+            for (var i = 0; i < result.length; i++) {
+                resultingTable += "<tr>\n";
+                resultingTable += "<td>" + result[i].proper_name + "</td>\n";
+                resultingTable += "<td>" + result[i].address + "</td>\n";
+                resultingTable += "<td>" + result[i].latitude + "</td>\n";
+                resultingTable += "<td>" + result[i].longitude + "</td>\n";
+                resultingTable += "<td>" + result[i].distance + "</td>\n";
+                resultingTable += "</tr>\n" ;
+            }
+            resultingTable += "</table>";
+            $("#locations").append(resultingTable);
+        });
+    }
+    
+    function buttonPressed(button) {
+        $("#locations").html("");
+        getStations(button);
+    }
+    
+</script>
+    
+    
+
+</body>
+</html>
